@@ -1,11 +1,5 @@
 import processing.pdf.*;
 import java.util.Calendar;
-import wblut.nurbs.*;
-import wblut.hemesh.*;
-import wblut.core.*;
-import wblut.geom.*;
-import wblut.processing.*;
-import wblut.math.*;
 
 boolean savePDF = false;
 
@@ -17,20 +11,9 @@ boolean hideGUI = false;
 boolean guiEvent = false;
 boolean recording = false;
 Slider[] sliders;
-Bang[] bangs;
 
-float startAngle = 0;
-int start;
-
-HE_Mesh mesh;
-WB_AABBTree tree;
-WB_Render render;
-WB_RandomOnSphere rnds;
-WB_Ray randomRay;
-WB_Vector bias;
-
-int count = 84;
-float noise = 10, noiseStrength = 1, offset = 0.0f, multiplier = 0.003f;
+int count = 50;
+float noise = 10, noiseStrength = 0.01, offset = 0.0f, multiplier = 0.003f;
 float overlayAlpha = 100, strokeAlpha = 100, strokeWidth = 0;
 
 void settings() {
@@ -38,25 +21,10 @@ void settings() {
   pixelDensity(displayDensity());
 }
 
-
 void setup() {
   setupGUI();
   background(0);
-  render=new WB_Render(this);
-  rnds=new WB_RandomOnSphere();
-  createMesh();
 }
-
-
-void createMesh() {
-  HEC_Beethoven creator=new HEC_Beethoven();
-  creator.setScale(5).setZAngle(PI);
-  mesh=new HE_Mesh(creator);
-  mesh.simplify(new HES_TriDec().setGoal(0.5));
-  tree=new WB_AABBTree(mesh, 1000);
-  bias=rnds.nextVector();
-}
-
 
 
 void draw() {
@@ -66,33 +34,34 @@ void draw() {
   offset += multiplier;
 
   float nOffset = noise(offset) * noiseStrength;
-  float nNoise  = noise(noise) * noiseStrength;
 
 
+  pushMatrix();
   println(frameRate);
+  // translate(width/2, height/2);
   strokeWeight(strokeWidth);
-  stroke(0, strokeAlpha);
+  stroke(255, strokeAlpha);
   fill(255, overlayAlpha);
+  scale(40);
 
-  hint(DISABLE_DEPTH_TEST);
-  noLights();
+  int xCount = count;
+  int yCount = count;
 
-  pushMatrix();
-  translate(width/2, height/2);
-  scale(1.8*offset);
-  render.drawFaces(mesh);
-  popMatrix();
-
-  hint(ENABLE_DEPTH_TEST);
-  pushMatrix();
-  translate(width/2, height/2);
   directionalLight(255, 255, 255, 1, 1, -1);
   directionalLight(127, 127, 127, -1, -1, 1);
-  scale(1.6*offset);
-  noStroke();
-  render.drawFaces(mesh);
-  noFill();
-  render.drawEdges(mesh);
+  for (int y = 0; y <= yCount; y++) {
+   beginShape(QUADS);
+   for (int x = 0; x <= xCount; x++) {
+     float z = sin(sqrt(x*x+(y)*(y))*nOffset);
+     vertex(x, y, z);
+     z = cos(sqrt(x*x+(y+1)*(y+1))*nOffset);
+     vertex(x, y+1, z);
+   }
+   endShape(CLOSE);
+ }
+
+
+
   popMatrix();
 
   // end of pdf recording
