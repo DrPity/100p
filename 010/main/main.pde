@@ -1,5 +1,6 @@
 import processing.pdf.*;
 import java.util.Calendar;
+import java.util.List;
 
 boolean savePDF = false;
 
@@ -12,8 +13,9 @@ boolean guiEvent = false;
 boolean recording = false;
 Slider[] sliders;
 
-int count = 10;
-float noise = 10, noiseStrength = 0.01, offset = 0.0f, multiplier = 0.003f;
+int count = 360;
+float zoom = 0.0f;
+float noise = 0, noiseStrength = 0.01, offset = 0.0f, multiplier = 0.03f;
 float overlayAlpha = 100, strokeAlpha = 100, strokeWidth = 0;
 
 void settings() {
@@ -32,38 +34,31 @@ void draw() {
   if (savePDF) beginRecord(PDF, timestamp()+".pdf");
 
   offset += multiplier;
+  zoom += 0.01;
+  float nNoise = map(sin(offset),-1,1,0,300);
+  blendMode(ADD);
 
+  overlayAlpha = map(sin(zoom),-1,1,0,255);
   float nOffset = noise(offset) * noiseStrength;
-
 
   pushMatrix();
   println(frameRate);
-  // translate(width/2, height/2);
   strokeWeight(strokeWidth);
   stroke(255, strokeAlpha);
   fill(255, overlayAlpha);
-  scale(40);
-
-  int xCount = count;
-  int yCount = count;
-
   directionalLight(255, 255, 255, 1, 1, -1);
   directionalLight(127, 127, 127, -1, -1, 1);
-  for (int y = 0; y <= yCount; y++) {
-   beginShape(QUADS);
-   for (int x = 0; x <= xCount; x++) {
-     float z = sin(sqrt(x*x+(y)*(y))*nOffset);
-     box(x, y, z);
-     z = cos(sqrt(x*x+(y+1)*(y+1))*nOffset);
-     box(x, y+1, z);
-   }
-   endShape(CLOSE);
- }
-
-
-
+  translate(width / 2, height / 2);
+  // scale(offset);
+  pushMatrix();
+  // beginShape(TRIANGLES);
+  branch(1000,0,0,0,offset,nOffset);
+  // endShape(CLOSE);
   popMatrix();
-
+  // pushMatrix();
+  // branch(200,0,0,0,nOffset);
+  // popMatrix();
+  popMatrix();
   // end of pdf recording
   if (savePDF) {
     savePDF = false;
@@ -91,6 +86,28 @@ void keyPressed() {
   if (GUI) controlP5.getGroup("CTRL").open();
   else controlP5.getGroup("CTRL").close();
 
+}
+
+void branch(float len, float oldPointX, float oldPointY, float oldPointZ, float theta, float nOffset) {
+
+  float pointX = random(width/2, width);
+  float pointY = random(height/2, height);
+  float pointZ = random(0, 200);
+
+  fill(lerp(0,255,pointX), overlayAlpha);
+  beginShape(QUADS);
+  vertex(0, 0, 0);
+  vertex(oldPointX, oldPointY, oldPointZ);
+  vertex(pointX, pointY, pointZ);
+  vertex(0, 0, 0);
+  endShape(CLOSE);
+  // ellipse(pointX,pointY, 300*nOffset, 300*nOffset);
+  len -= 1;
+  // println(len);
+  if (len >= 1) {
+    rotate(theta);
+    branch(len,pointX,pointY,pointZ,theta, nOffset);
+  }
 }
 
 

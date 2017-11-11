@@ -1,5 +1,6 @@
 import processing.pdf.*;
 import java.util.Calendar;
+import java.util.List;
 
 boolean savePDF = false;
 
@@ -12,9 +13,9 @@ boolean guiEvent = false;
 boolean recording = false;
 Slider[] sliders;
 
-int count = 10;
-float noise = 10, noiseStrength = 0.01, offset = 0.0f, multiplier = 0.003f;
-float overlayAlpha = 100, strokeAlpha = 100, strokeWidth = 0;
+int count = 360;
+float noise = 0, noiseStrength = 0.01, offset = 0.0f, multiplier = 0.03f;
+float overlayAlpha = 100, strokeAlpha = 100, strokeWidth = 2;
 
 void settings() {
   size(1080, 1080, P3D);
@@ -32,35 +33,35 @@ void draw() {
   if (savePDF) beginRecord(PDF, timestamp()+".pdf");
 
   offset += multiplier;
+  float nNoise = map(sin(offset),-1,1,0,300);
+  // noise  += 0.005;
 
   float nOffset = noise(offset) * noiseStrength;
 
-
   pushMatrix();
   println(frameRate);
-  // translate(width/2, height/2);
   strokeWeight(strokeWidth);
   stroke(255, strokeAlpha);
   fill(255, overlayAlpha);
-  scale(40);
-
-  int xCount = count;
-  int yCount = count;
 
   directionalLight(255, 255, 255, 1, 1, -1);
   directionalLight(127, 127, 127, -1, -1, 1);
-  for (int y = 0; y <= yCount; y++) {
-   beginShape(QUADS);
-   for (int x = 0; x <= xCount; x++) {
-     float z = sin(sqrt(x*x+(y)*(y))*nOffset);
-     box(x, y, z);
-     z = cos(sqrt(x*x+(y+1)*(y+1))*nOffset);
-     box(x, y+1, z);
-   }
-   endShape(CLOSE);
- }
 
-
+  translate(width / 2, height / 2);
+  pushMatrix();
+  beginShape(QUADS);
+  for (int n = 1; n < count; n++) {
+    float ease = -0.5*(sin(offset * PI) - 1);
+    float phase = 0 + 2*PI*ease + PI + radians(map(nOffset%count, 0, count, 0, 360));
+    float x = map(n, 0, 360, -count, count);
+    float y = count * sqrt(1 - pow(x/count, 2)) * sin(radians(n) + phase);
+    vertex(x,0,nNoise);
+    vertex(x,y,0);
+    vertex(x,y,-nNoise);
+    vertex(0,y,nNoise);
+  }
+  endShape(CLOSE);
+  popMatrix();
 
   popMatrix();
 

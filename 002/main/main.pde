@@ -55,7 +55,7 @@ void draw() {
     stroke(255,lerp(nOffset, offset ,angle));
 
     ellipse(x+540,y+540,10*nOffset,10*nOffset);
-    line(x+540, y+540, 0+540, 0+540); //draw a line from each point back to the centre
+    line(x+540, y+540, 0+540, 0+540);
   }
   popMatrix();
 

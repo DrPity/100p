@@ -1,5 +1,6 @@
 import processing.pdf.*;
 import java.util.Calendar;
+import java.util.List;
 
 boolean savePDF = false;
 
@@ -12,7 +13,10 @@ boolean guiEvent = false;
 boolean recording = false;
 Slider[] sliders;
 
-int count = 10;
+
+List <Mover> mover;
+
+int count = 100;
 float noise = 10, noiseStrength = 0.01, offset = 0.0f, multiplier = 0.003f;
 float overlayAlpha = 100, strokeAlpha = 100, strokeWidth = 0;
 
@@ -24,6 +28,10 @@ void settings() {
 void setup() {
   setupGUI();
   background(0);
+  mover=new ArrayList<Mover>();
+  for (int i = 0; i < count; i++) {
+   mover.add(new Mover());
+ }
 }
 
 
@@ -42,25 +50,16 @@ void draw() {
   strokeWeight(strokeWidth);
   stroke(255, strokeAlpha);
   fill(255, overlayAlpha);
-  scale(40);
-
-  int xCount = count;
-  int yCount = count;
 
   directionalLight(255, 255, 255, 1, 1, -1);
   directionalLight(127, 127, 127, -1, -1, 1);
-  for (int y = 0; y <= yCount; y++) {
-   beginShape(QUADS);
-   for (int x = 0; x <= xCount; x++) {
-     float z = sin(sqrt(x*x+(y)*(y))*nOffset);
-     box(x, y, z);
-     z = cos(sqrt(x*x+(y+1)*(y+1))*nOffset);
-     box(x, y+1, z);
-   }
-   endShape(CLOSE);
- }
 
+  for (Mover mo : mover) {
 
+    mo.update();
+    mo.checkEdges();
+    mo.display();
+  }
 
   popMatrix();
 
