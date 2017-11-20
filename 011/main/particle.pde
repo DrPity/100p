@@ -3,7 +3,7 @@ class Particle {
   float life, lifeRate;
   IntList connected;
 
-
+  //Here starts chaos. A lot of chaos. Needs refact.
   Particle() {
     // loc = new PVector(random(-1, 1), random(-1, 1), random(0,100));
     life = random(1.75, 5.25);
@@ -22,20 +22,16 @@ class Particle {
     life -= lifeRate;
     vel.add(new PVector(0, gravity));
 
-    //add dampening
     PVector dampening = vel.copy().mult(-1);
     dampening.limit(1);
     dampening.mult(dampeningForce);
     vel.add(dampening);
     loc.add(vel);
-    //update position
     loc.add(vel);
 
-    //calc dist to center for collision
     PVector center = new PVector(width / 2, height / 2);
     float distToCenter = loc.dist(center);
 
-    //if particle is leaving circle, pop it back in and reverse its velocity
     if (distToCenter > circleRadius) {
         PVector vecToCenter = center.copy().sub(loc).normalize();
         vel.mult(-1);
@@ -54,7 +50,7 @@ class Particle {
 
 
     if (connected.size() > 1) {
-      for (int i = 0; i < connected.size() - 1; i += 2) { //go through all connected particles in steps of two
+      for (int i = 0; i < connected.size() - 1; i += 2) {
         beginShape(TRIANGLES);
         vertex(loc.x, loc.y, loc.z);
         vertex(particles.get(i).loc.x, particles.get(i).loc.y,particles.get(i).loc.z );
@@ -69,7 +65,6 @@ class Particle {
     for (Particle p : particles) {
       idx++;
       if(p != ownP){
-        //calc dist to the particle
         float dist = loc.dist(ownP.loc);
         boolean allreadyConnected = false;
         for (int j = 0; j < connected.size(); j++){

@@ -15,7 +15,7 @@ Slider[] sliders;
 Point[] points;
 int last;
 
-int count = 100;
+int count = 10;
 float noise = 10, noiseStrength = 0.01, offset = 0.0f, multiplier = 0.03f;
 float overlayAlpha = 0, strokeAlpha = 255, strokeWidth =6;
 float stepSize = 2;
@@ -54,29 +54,7 @@ void draw() {
   // directionalLight(255, 255, 255, 1, 1, -1);
   // directionalLight(127, 127, 127, -1, -1, 1);
   pushMatrix();
-  translate(width/2,height/2);
-  for (int i = 0; i < points.length; i++ ) {
-    points[i].x += random(-stepSize,stepSize)*offset;
-    points[i].y += random(-stepSize,stepSize)*offset;
-  }
-  beginShape();
-  curveVertex(points[points.length-1].x,points[points.length-1].y);
-  for (int i=0; i<points.length; i++){
-    curveVertex(points[i].x, points[i].y);
-  }
-  curveVertex(points[0].x, points[0].y);
-  curveVertex(points[1].x, points[1].y);
-  endShape();
-
-  stroke(0);
-  beginShape();
-  for (int i=0; i<points.length; i++){
-    vertex(points[i].x, points[i].y);
-    ellipse(points[i].x, points[i].y, 7, 7);
-  }
-  vertex(points[0].x, points[0].y);
-  endShape();
-
+  connectPoints();
   popMatrix();
 
 
@@ -116,6 +94,31 @@ class Point{
     this.y=y;
     myColor=col;
   }
+}
+
+void connectPoints(){
+  translate(width/2,height/2);
+  for (int i = 0; i < points.length; i++ ) {
+    points[i].x += random(-stepSize,stepSize)*offset;
+    points[i].y += random(-stepSize,stepSize)*offset;
+  }
+  beginShape();
+  curveVertex(points[points.length-1].x,points[points.length-1].y);
+  for (int i=0; i<points.length; i++){
+    curveVertex(points[i].x, points[i].y);
+  }
+  curveVertex(points[0].x, points[0].y);
+  curveVertex(points[1].x, points[1].y);
+  endShape();
+
+  stroke(0);
+  beginShape();
+  for (int i=0; i<points.length; i++){
+    vertex(points[i].x, points[i].y);
+    ellipse(points[i].x, points[i].y, 7, 7);
+  }
+  vertex(points[0].x, points[0].y);
+  endShape();
 }
 
 
